@@ -35,6 +35,8 @@
 #include "stdio.h"
 #include "bsp/bsp.h"
 #include "cpx.h"
+//#include "perf.h"
+//#include "timer.h"
 
 #define CAM_WIDTH 324
 #define CAM_HEIGHT 244
@@ -61,6 +63,17 @@ AT_HYPERFLASH_FS_EXT_ADDR_TYPE __PREFIX(_L3_Flash) = 0;
 
 #define IMG_ORIENTATION 0x0101
 
+/* Define global vars for perf counters */
+uint64_t cycles =        0;     
+uint64_t imiss  =        0;
+uint64_t ld_ext =        0;
+uint64_t st_ext =        0;
+uint64_t tcdm_cont =     0;
+uint64_t perf_instr=    0;
+uint64_t active_cycles = 0;
+uint64_t ld_stall =      0;
+uint64_t jr_stall =      0;
+uint64_t perf_branch =   0;
 
 static void RunNetwork()
 {
@@ -239,8 +252,64 @@ int classification()
   return 0;
 }
 
-int main(void)
-{
-  pi_bsp_init();
-  return pmsis_kickoff((void *)classification);
+void monitor(void){
+    /* stop counters before reading????*/
+    pi_perf_stop();
+    /* Read HW performance counters */ 
+    cycles =        pi_perf_read(PI_PERF_CYCLES); 
+    imiss  =        pi_perf_read(PI_PERF_IMISS); 
+    ld_ext =        pi_perf_read(PI_PERF_LD_EXT); 
+    st_ext =        pi_perf_read(PI_PERF_ST_EXT); 
+    tcdm_cont =     pi_perf_read(PI_PERF_TCDM_CONT); 
+    perf_instr =    pi_perf_read(PI_PERF_INSTR); 
+    active_cycles = pi_perf_read(PI_PERF_ACTIVE_CYCLES); 
+    ld_stall =      pi_perf_read(PI_PERF_LD_STALL); 
+    jr_stall =      pi_perf_read(PI_PERF_JR_STALL); 
+    perf_branch =   pi_perf_read(PI_PERF_BRANCH);   
+    pi_perf_start();
+    printf("perf counters read");
 }
+
+void init_monitor(void){
+    /* Init HW performance counters */
+    pi_perf_stop(); 
+    pi_perf_conf(1<<PI_PERF_CYCLES);     
+    pi_perf_conf(1<<PI_PERF_IMISS);      
+    pi_perf_conf(1<<PI_PERF_LD_EXT);   
+    pi_perf_conf(1<<PI_PERF_ST_EXT);    
+    pi_perf_conf(1<<PI_PERF_TCDM_CONT);   
+    pi_perf_conf(1<<PI_PERF_INSTR);     
+    pi_perf_conf(1<<PI_PERF_ACTIVE_CYCLES);    
+    pi_perf_conf(1<<PI_PERF_LD_STALL);    
+    pi_perf_conf(1<<PI_PERF_JR_STALL);   
+    pi_perf_conf(1<<PI_PERF_BRANCH);                        
+    pi_perf_reset(); 
+    pi_perf_start(); 
+    printf("perf init done");
+}
+
+int main(void){
+    /* Init HW */
+    pi_bsp_init();
+    
+    /* Create FreeRTOS SW timer */
+    TimerHandle_t xMonitorTimer = xTimerCreate(
+        "Timer",
+        pdMS_TO_TICKS(1000),
+        pdTRUE,
+        ( void * )0,
+        monitor
+    );
+
+    /* Start timer */
+    if(xMonitorTimer != 0){
+        xTimerStart( xMonitorTimer, 0 );
+    }
+
+    init_monitor();
+    return pmsis_kickoff((void *)classification);
+}
+
+
+
+ 
