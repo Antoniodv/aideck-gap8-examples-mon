@@ -253,6 +253,7 @@ int classification()
 }
 
 void monitor(void){
+    cpxPrintToConsole(LOG_TO_CRTP, "p.c. read\n");	
     /* stop counters before reading????*/
     pi_perf_stop();
     /* Read HW performance counters */ 
@@ -267,10 +268,10 @@ void monitor(void){
     jr_stall =      pi_perf_read(PI_PERF_JR_STALL); 
     perf_branch =   pi_perf_read(PI_PERF_BRANCH);   
     pi_perf_start();
-    printf("perf counters read");
 }
 
 void init_monitor(void){
+    cpxPrintToConsole(LOG_TO_CRTP, "perf counters init\n");
     /* Init HW performance counters */
     pi_perf_stop(); 
     pi_perf_conf(1<<PI_PERF_CYCLES);     
@@ -285,7 +286,6 @@ void init_monitor(void){
     pi_perf_conf(1<<PI_PERF_BRANCH);                        
     pi_perf_reset(); 
     pi_perf_start(); 
-    printf("perf init done");
 }
 
 int main(void){
