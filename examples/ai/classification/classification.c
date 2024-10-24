@@ -252,11 +252,10 @@ int classification()
   return 0;
 }
 
-void monitor(void){
+void vTimerCallbackMonitor(TimerHandle_t xTimer){
     cpxPrintToConsole(LOG_TO_CRTP, "p.c. read\n");	
-    /* stop counters before reading????*/
+/*
     pi_perf_stop();
-    /* Read HW performance counters */ 
     cycles =        pi_perf_read(PI_PERF_CYCLES); 
     imiss  =        pi_perf_read(PI_PERF_IMISS); 
     ld_ext =        pi_perf_read(PI_PERF_LD_EXT); 
@@ -268,11 +267,12 @@ void monitor(void){
     jr_stall =      pi_perf_read(PI_PERF_JR_STALL); 
     perf_branch =   pi_perf_read(PI_PERF_BRANCH);   
     pi_perf_start();
+*/
 }
 
 void init_monitor(void){
     cpxPrintToConsole(LOG_TO_CRTP, "perf counters init\n");
-    /* Init HW performance counters */
+/*
     pi_perf_stop(); 
     pi_perf_conf(1<<PI_PERF_CYCLES);     
     pi_perf_conf(1<<PI_PERF_IMISS);      
@@ -286,6 +286,7 @@ void init_monitor(void){
     pi_perf_conf(1<<PI_PERF_BRANCH);                        
     pi_perf_reset(); 
     pi_perf_start(); 
+*/
 }
 
 int main(void){
@@ -298,7 +299,7 @@ int main(void){
         pdMS_TO_TICKS(1000),
         pdTRUE,
         ( void * )0,
-        monitor
+        vTimerCallbackMonitor
     );
 
     /* Start timer */
