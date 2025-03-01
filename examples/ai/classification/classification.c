@@ -64,16 +64,16 @@ AT_HYPERFLASH_FS_EXT_ADDR_TYPE __PREFIX(_L3_Flash) = 0;
 #define IMG_ORIENTATION 0x0101
 
 /* Define global vars for perf counters */
-uint64_t cycles =        0;     
-uint64_t imiss  =        0;
-uint64_t ld_ext =        0;
-uint64_t st_ext =        0;
-uint64_t tcdm_cont =     0;
-uint64_t perf_instr=    0;
-uint64_t active_cycles = 0;
-uint64_t ld_stall =      0;
-uint64_t jr_stall =      0;
-uint64_t perf_branch =   0;
+volatile uint64_t cycles =        0;     
+volatile uint64_t imiss  =        0;
+volatile uint64_t ld_ext =        0;
+volatile uint64_t st_ext =        0;
+volatile uint64_t tcdm_cont =     0;
+volatile uint64_t perf_instr=     0;
+volatile uint64_t active_cycles = 0;
+volatile uint64_t ld_stall =      0;
+volatile uint64_t jr_stall =      0;
+volatile uint64_t perf_branch =   0;
 
 static void RunNetwork()
 {
@@ -158,6 +158,8 @@ void hb_task(void *parameters)
 
 int classification()
 {
+  cpxPrintToConsole(LOG_TO_CRTP,"classification");
+/*	
   pi_freq_set(PI_FREQ_DOMAIN_FC, FREQ_FC*1000*1000);
   //pi_freq_set(PI_FREQ_DOMAIN_CL, FREQ_CL*1000*1000);
   __pi_pmu_voltage_set(PI_PMU_DOMAIN_FC, 1200);
@@ -210,7 +212,7 @@ int classification()
   }
   cpxPrintToConsole(LOG_TO_CRTP, "Allocated memory for output\n");
 
-  /* Configure CNN task */
+  // Configure CNN task 
   pi_cluster_conf_init(&cluster_conf);
   pi_open_from_conf(&cluster_dev, (void *)&cluster_conf);
   pi_cluster_open(&cluster_dev);
@@ -227,7 +229,7 @@ int classification()
   task->slave_stack_size = SLAVE_STACK_SIZE; // "
   task->arg = NULL;
 
-  /* Construct CNN */
+  // Construct CNN 
   int ret = __PREFIX(CNN_Construct)();
   if (ret)
   {
@@ -245,53 +247,65 @@ int classification()
     pi_yield();
   }
 
-  /* Destruct CNN */
+  // Destruct CNN 
   __PREFIX(CNN_Destruct)
   ();
 
   return 0;
+  */
 }
 
 void vTimerCallbackMonitor(TimerHandle_t xTimer){
     cpxPrintToConsole(LOG_TO_CRTP, "p.c. read\n");	
-/*
-    pi_perf_stop();
-    cycles =        pi_perf_read(PI_PERF_CYCLES); 
-    imiss  =        pi_perf_read(PI_PERF_IMISS); 
-    ld_ext =        pi_perf_read(PI_PERF_LD_EXT); 
-    st_ext =        pi_perf_read(PI_PERF_ST_EXT); 
-    tcdm_cont =     pi_perf_read(PI_PERF_TCDM_CONT); 
-    perf_instr =    pi_perf_read(PI_PERF_INSTR); 
-    active_cycles = pi_perf_read(PI_PERF_ACTIVE_CYCLES); 
-    ld_stall =      pi_perf_read(PI_PERF_LD_STALL); 
-    jr_stall =      pi_perf_read(PI_PERF_JR_STALL); 
-    perf_branch =   pi_perf_read(PI_PERF_BRANCH);   
-    pi_perf_start();
-*/
+
+    // pi_perf_stop();
+    // cycles =        pi_perf_read(PI_PERF_CYCLES); 
+    // imiss  =        pi_perf_read(PI_PERF_IMISS); 
+    // ld_ext =        pi_perf_read(PI_PERF_LD_EXT); 
+    // st_ext =        pi_perf_read(PI_PERF_ST_EXT); 
+    // tcdm_cont =     pi_perf_read(PI_PERF_TCDM_CONT); 
+    // perf_instr =    pi_perf_read(PI_PERF_INSTR); 
+    // active_cycles = pi_perf_read(PI_PERF_ACTIVE_CYCLES); 
+    // ld_stall =      pi_perf_read(PI_PERF_LD_STALL); 
+    // jr_stall =      pi_perf_read(PI_PERF_JR_STALL); 
+    // perf_branch =   pi_perf_read(PI_PERF_BRANCH);   
+
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_CYCLES: %d\n", cycles);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_IMISS: %d\n" , imiss);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_LD_EXT: %d\n", ld_ext);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_ST_EXT: %d\n", st_ext);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_TCDM_CONT: %d\n", tcdm_cont);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_INSTR: %d\n", perf_instr);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_ACTIVE_CYCLES: %d\n", active_cycles);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_LD_STALL: %d\n", ld_stall);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_JR_STALL: %d\n", jr_stall);
+    // cpxPrintToConsole(LOG_TO_CRTP,"PI_PERF_BRANCH: %d\n", perf_branch);
+
+    // pi_perf_start();
 }
 
 void init_monitor(void){
     cpxPrintToConsole(LOG_TO_CRTP, "perf counters init\n");
-/*
-    pi_perf_stop(); 
-    pi_perf_conf(1<<PI_PERF_CYCLES);     
-    pi_perf_conf(1<<PI_PERF_IMISS);      
-    pi_perf_conf(1<<PI_PERF_LD_EXT);   
-    pi_perf_conf(1<<PI_PERF_ST_EXT);    
-    pi_perf_conf(1<<PI_PERF_TCDM_CONT);   
-    pi_perf_conf(1<<PI_PERF_INSTR);     
-    pi_perf_conf(1<<PI_PERF_ACTIVE_CYCLES);    
-    pi_perf_conf(1<<PI_PERF_LD_STALL);    
-    pi_perf_conf(1<<PI_PERF_JR_STALL);   
-    pi_perf_conf(1<<PI_PERF_BRANCH);                        
-    pi_perf_reset(); 
-    pi_perf_start(); 
-*/
+    // pi_perf_stop(); 
+    // pi_perf_conf(1<<PI_PERF_CYCLES);     
+    // pi_perf_conf(1<<PI_PERF_IMISS);      
+    // pi_perf_conf(1<<PI_PERF_LD_EXT);   
+    // pi_perf_conf(1<<PI_PERF_ST_EXT);    
+    // pi_perf_conf(1<<PI_PERF_TCDM_CONT);   
+    // pi_perf_conf(1<<PI_PERF_INSTR);     
+    // pi_perf_conf(1<<PI_PERF_ACTIVE_CYCLES);    
+    // pi_perf_conf(1<<PI_PERF_LD_STALL);    
+    // pi_perf_conf(1<<PI_PERF_JR_STALL);   
+    // pi_perf_conf(1<<PI_PERF_BRANCH);                        
+    // pi_perf_reset(); 
+    // pi_perf_start(); 
 }
 
 int main(void){
     /* Init HW */
     pi_bsp_init();
+
+    cpxPrintToConsole(LOG_TO_CRTP, "main\n");
     
     /* Create FreeRTOS SW timer */
     TimerHandle_t xMonitorTimer = xTimerCreate(
@@ -310,7 +324,3 @@ int main(void){
     init_monitor();
     return pmsis_kickoff((void *)classification);
 }
-
-
-
- 

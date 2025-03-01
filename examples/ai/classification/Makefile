@@ -62,13 +62,14 @@ APP = classification
 APP_SRCS += classification.c ../../../lib/cpx/src/com.c ../../../lib/cpx/src/cpx.c $(MODEL_GEN_C) $(MODEL_COMMON_SRCS) $(CNN_LIB) 
 
 APP_CFLAGS += -g -Os -mno-memcpy -fno-tree-loop-distribute-patterns
-APP_CFLAGS += -I. -I$(MODEL_COMMON_INC) -I$(TILER_EMU_INC) -I$(TILER_INC) $(CNN_LIB_INCLUDE) -I$(realpath $(MODEL_BUILD))
+	APP_CFLAGS += -I. -I$(MODEL_COMMON_INC) -I$(TILER_EMU_INC) -I$(TILER_INC) $(CNN_LIB_INCLUDE) -I$(realpath $(MODEL_BUILD)) 
 APP_CFLAGS += -DPERF -DAT_MODEL_PREFIX=$(MODEL_PREFIX) $(MODEL_SIZE_CFLAGS)
 APP_CFLAGS += -DSTACK_SIZE=$(CLUSTER_STACK_SIZE) -DSLAVE_STACK_SIZE=$(CLUSTER_SLAVE_STACK_SIZE)
 APP_CFLAGS += -DconfigUSE_TIMERS=1 -DINCLUDE_xTimerPendFunctionCall=1 -DFS_PARTITIONTABLE_OFFSET=0x40000
+#-DconfigTIMER_TASK_PRIORITY=(configMAX_PRIORITIES-1) 
 APP_CFLAGS +=  -DFREQ_FC=$(FREQ_FC) -DFREQ_CL=$(FREQ_CL) -DTXQ_SIZE=$(CPX_TXQ_SIZE) -DRXQ_SIZE=$(CPX_RXQ_SIZE) 
 APP_INC = ../../../lib/cpx/inc
-
+APP_INC += perf.h
 READFS_FILES=$(abspath $(MODEL_TENSORS))
 
 all:: model
