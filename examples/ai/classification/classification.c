@@ -35,8 +35,8 @@
 #include "stdio.h"
 #include "bsp/bsp.h"
 #include "cpx.h"
-//#include "perf.h"
-//#include "timer.h"
+// #include "perf.h"
+// #include "timer.h"
 
 #define CAM_WIDTH 324
 #define CAM_HEIGHT 244
@@ -77,83 +77,83 @@ volatile uint64_t perf_branch =   0;
 
 static void RunNetwork()
 {
-  __PREFIX(CNN)
-  (cameraBuffer, Output_1);
+  // __PREFIX(CNN)
+  // (cameraBuffer, Output_1);
 }
 
 static void cam_handler(void *arg)
 {
+  // pi_camera_control(&camera, PI_CAMERA_CMD_STOP, 0);
 
-  pi_camera_control(&camera, PI_CAMERA_CMD_STOP, 0);
+  // /* Run inference */
+  // pi_cluster_send_task_to_cl(&cluster_dev, task);
 
-  /* Run inference */
-  pi_cluster_send_task_to_cl(&cluster_dev, task);
+  // if (Output_1[0] > Output_1[1])
+  // {
+  //   cpxPrintToConsole(LOG_TO_CRTP, "Packet,     confidence: %hd\n", Output_1[0] - Output_1[1]);
+  // }
+  // else
+  // {
+  //   cpxPrintToConsole(LOG_TO_CRTP, "Background, confidence: %hd\n", Output_1[1] - Output_1[0]);
+  // }
 
-  if (Output_1[0] > Output_1[1])
-  {
-    cpxPrintToConsole(LOG_TO_CRTP, "Packet,     confidence: %hd\n", Output_1[0] - Output_1[1]);
-  }
-  else
-  {
-    cpxPrintToConsole(LOG_TO_CRTP, "Background, confidence: %hd\n", Output_1[1] - Output_1[0]);
-  }
-
-  pi_camera_capture_async(&camera, cameraBuffer, CAM_WIDTH * CAM_HEIGHT, pi_task_callback(&task1, cam_handler, NULL));
-  pi_camera_control(&camera, PI_CAMERA_CMD_START, 0);
+  // pi_camera_capture_async(&camera, cameraBuffer, CAM_WIDTH * CAM_HEIGHT, pi_task_callback(&task1, cam_handler, NULL));
+  // pi_camera_control(&camera, PI_CAMERA_CMD_START, 0);
 }
 
 static int open_camera(struct pi_device *device)
 {
 
-  struct pi_himax_conf cam_conf;
+  // struct pi_himax_conf cam_conf;
 
-  pi_himax_conf_init(&cam_conf);
+  // pi_himax_conf_init(&cam_conf);
 
-  cam_conf.format = PI_CAMERA_QVGA;
+  // cam_conf.format = PI_CAMERA_QVGA;
 
-  pi_open_from_conf(device, &cam_conf);
-  if (pi_camera_open(device))
-    return -1;
+  // pi_open_from_conf(device, &cam_conf);
+  // if (pi_camera_open(device))
+  //   return -1;
 
-  pi_camera_control(&camera, PI_CAMERA_CMD_START, 0);
-  uint8_t set_value = 3;
-  uint8_t reg_value;
-  pi_camera_reg_set(&camera, IMG_ORIENTATION, &set_value);
-  pi_time_wait_us(1000000);
-  pi_camera_reg_get(&camera, IMG_ORIENTATION, &reg_value);
+  // pi_camera_control(&camera, PI_CAMERA_CMD_START, 0);
+  // uint8_t set_value = 3;
+  // uint8_t reg_value;
+  // pi_camera_reg_set(&camera, IMG_ORIENTATION, &set_value);
+  // pi_time_wait_us(1000000);
+  // pi_camera_reg_get(&camera, IMG_ORIENTATION, &reg_value);
 
-  if (set_value != reg_value)
-  {
-    cpxPrintToConsole(LOG_TO_CRTP,"Failed to rotate camera image\n");
-    return -1;
-  }
+  // if (set_value != reg_value)
+  // {
+  //   cpxPrintToConsole(LOG_TO_CRTP,"Failed to rotate camera image\n");
+  //   return -1;
+  // }
               
-  pi_camera_control(&camera, PI_CAMERA_CMD_STOP, 0);
+  // pi_camera_control(&camera, PI_CAMERA_CMD_STOP, 0);
 
-  pi_camera_control(device, PI_CAMERA_CMD_AEG_INIT, 0);
-  return 0;
+  // pi_camera_control(device, PI_CAMERA_CMD_AEG_INIT, 0);
+  // return 0;
 }
 
 // Functions and init for LED toggle
 #define LED_PIN 2
 static pi_device_t led_gpio_dev;
+
 void hb_task(void *parameters)
 {
-  (void)parameters;
-  char *taskname = pcTaskGetName(NULL);
+  // (void)parameters;
+  // char *taskname = pcTaskGetName(NULL);
 
-  // Initialize the LED pin
-  pi_gpio_pin_configure(&led_gpio_dev, LED_PIN, PI_GPIO_OUTPUT);
+  // // Initialize the LED pin
+  // pi_gpio_pin_configure(&led_gpio_dev, LED_PIN, PI_GPIO_OUTPUT);
 
-  const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+  // const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
-  while (1)
-  {
-    pi_gpio_pin_write(&led_gpio_dev, LED_PIN, 1);
-    vTaskDelay(xDelay);
-    pi_gpio_pin_write(&led_gpio_dev, LED_PIN, 0);
-    vTaskDelay(xDelay);
-  }
+  // while (1)
+  // {
+  //   pi_gpio_pin_write(&led_gpio_dev, LED_PIN, 1);
+  //   vTaskDelay(xDelay);
+  //   pi_gpio_pin_write(&led_gpio_dev, LED_PIN, 0);
+  //   vTaskDelay(xDelay);
+  // }
 }
 
 int classification()
@@ -257,7 +257,6 @@ int classification()
 
 void vTimerCallbackMonitor(TimerHandle_t xTimer){
     cpxPrintToConsole(LOG_TO_CRTP, "p.c. read\n");	
-
     // pi_perf_stop();
     // cycles =        pi_perf_read(PI_PERF_CYCLES); 
     // imiss  =        pi_perf_read(PI_PERF_IMISS); 
@@ -304,23 +303,23 @@ void init_monitor(void){
 int main(void){
     /* Init HW */
     pi_bsp_init();
-
-    cpxPrintToConsole(LOG_TO_CRTP, "main\n");
-    
-    /* Create FreeRTOS SW timer */
-    TimerHandle_t xMonitorTimer = xTimerCreate(
-        "Timer",
-        pdMS_TO_TICKS(1000),
-        pdTRUE,
-        ( void * )0,
-        vTimerCallbackMonitor
-    );
-
-    /* Start timer */
-    if(xMonitorTimer != 0){
-        xTimerStart( xMonitorTimer, 0 );
+    while(1){
+      cpxPrintToConsole(LOG_TO_CRTP, "main\n");
     }
+    // /* Create FreeRTOS SW timer */
+    // TimerHandle_t xMonitorTimer = xTimerCreate(
+    //     "Timer",
+    //     pdMS_TO_TICKS(1000),
+    //     pdTRUE,
+    //     ( void * )0,
+    //     vTimerCallbackMonitor
+    // );
 
-    init_monitor();
-    return pmsis_kickoff((void *)classification);
+    // /* Start timer */
+    // if(xMonitorTimer != 0){
+    //     xTimerStart( xMonitorTimer, 0 );
+    // }
+
+    // init_monitor();
+    // return pmsis_kickoff((void *)classification);
 }
