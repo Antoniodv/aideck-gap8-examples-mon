@@ -303,6 +303,10 @@ void init_monitor(void){
 int main(void){
     /* Init HW */
     pi_bsp_init();
+    cpxInit();
+    cpxEnableFunction(CPX_F_WIFI_CTRL);
+    cpxPrintToConsole(LOG_TO_CRTP, "*** Classification with Performance Monitoring ***\n");
+    
     while(1){
       cpxPrintToConsole(LOG_TO_CRTP, "main\n");
     }
