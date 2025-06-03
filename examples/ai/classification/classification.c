@@ -140,8 +140,9 @@ void pc_read_task(void *parameters)
         if (xSemaphoreTake(xSemaphoreInferenceDone, portMAX_DELAY) == pdTRUE)
         {
             // vTaskDelay(pdMS_TO_TICKS(1000));
+            cpxPrintToConsole(LOG_TO_CRTP, "pc reading ...\n");
             pi_perf_stop();
-            
+
             cycles =        pi_perf_read(PI_PERF_CYCLES); 
             imiss  =        pi_perf_read(PI_PERF_IMISS); 
             ld_ext =        pi_perf_read(PI_PERF_LD_EXT); 
